@@ -3,7 +3,7 @@ name: Scrape & Auto-Reply
 on:
   schedule:
     - cron: '*/5 * * * *'  # every 5 minutes
-  workflow_dispatch:        # manual trigger too
+  workflow_dispatch:      # manual trigger too
 
 jobs:
   scrape:
@@ -35,8 +35,8 @@ jobs:
       - name: Commit & push updated JSON
         uses: stefanzweifel/git-auto-commit-action@v4
         with:
+          token: ${{ secrets.GH_PAT }}
           commit_message: "chore: update scraped_posts.json"
           file_pattern: scraped_posts.json
           commit_user_name: Simfukwe01
           commit_user_email: Simfukwe01@users.noreply.github.com
-          repository: https://x-access-token:${{ secrets.GH_PAT }}@github.com/Simfukwe01/xtraspace-fetcher.git
