@@ -8,7 +8,7 @@ TOKEN   = os.environ['FB_TOKEN']
 PAGE_ID = os.environ['PAGE_ID']
 
 # Load your Keras model, tokenizer, labels & province map
-model = load_model('web_model/web_model/model.json')  # you may need a .h5 here, adjust accordingly
+model = load_model('web_model/web_model/intent_model_with_loc.h5')  # you may need a .h5 here, adjust accordingly
 word_index    = json.load(open('web_model/tokenizer_word_index.json'))
 intent_labels = json.load(open('web_model/intent_classes.json'))
 prov_map      = json.load(open('web_model/province_index.json'))
