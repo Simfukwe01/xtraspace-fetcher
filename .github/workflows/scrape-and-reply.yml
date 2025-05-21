@@ -11,7 +11,8 @@ jobs:
     runs-on: ubuntu-latest
     env:
       FB_TOKEN: ${{ secrets.FB_PAGE_TOKEN }}
-      PAGE_ID: ${{ secrets.PAGE_ID }}
+      PAGE_ID: 579954655210740
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -27,12 +28,10 @@ jobs:
           pip install numpy requests tensorflow
 
       - name: Scrape Facebook and post replies
-        run: |
-          python scripts/scrape_and_reply.py
+        run: python scripts/scrape_and_reply.py
 
       - name: Generate latest posts JSON
-        run: |
-          python scripts/dump_posts.py
+        run: python scripts/dump_posts.py
 
       - name: Commit & push updated JSON
         uses: stefanzweifel/git-auto-commit-action@v4
