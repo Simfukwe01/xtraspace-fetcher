@@ -20,7 +20,7 @@ jobs:
         with:
           python-version: '3.10'
 
-      - name: Install Python dependencies
+      - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install numpy requests tensorflow
@@ -32,11 +32,9 @@ jobs:
         run: python scripts/dump_posts.py
 
       - name: Commit & push updated JSON
-        uses: stefanzweifel/git-auto-commit-action@v4
-        with:
-          repository: https://x-access-token:${{ secrets.GH_PAT }}@github.com/Simfukwe01/xtraspace-fetcher.git
-          branch: main
-          commit_message: "chore: update scraped_posts.json"
-          file_pattern: scraped_posts.json
-          commit_user_name: Simfukwe01
-          commit_user_email: Simfukwe01@users.noreply.github.com
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs/scraped_posts.json
+          git diff --cached --quiet || git commit -m "chore: update scraped_posts.json"
+          git push "https://x-access-token:${{ secrets.GH_PAT }}@github.com/Simfukwe01/xtraspace-fetcher.git" HEAD:main
