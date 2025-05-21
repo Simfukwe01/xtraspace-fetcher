@@ -1,3 +1,4 @@
+# .github/workflows/scrape_and_auto_reply.yml
 name: Scrape & Auto-Reply
 
 on:
@@ -8,6 +9,9 @@ on:
 jobs:
   scrape:
     runs-on: ubuntu-latest
+    env:
+      FB_TOKEN: ${{ secrets.FB_PAGE_TOKEN }}
+      PAGE_ID: ${{ secrets.PAGE_ID }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -15,7 +19,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.10'  # Downgraded to ensure TensorFlow compatibility
+          python-version: '3.10'  # ensure TensorFlow compatibility
 
       - name: Install Python dependencies
         run: |
@@ -23,9 +27,6 @@ jobs:
           pip install numpy requests tensorflow
 
       - name: Scrape Facebook and post replies
-        env:
-          FB_TOKEN: ${{ secrets.FB_PAGE_TOKEN }}
-          PAGE_ID: 579954655210740
         run: |
           python scripts/scrape_and_reply.py
 
