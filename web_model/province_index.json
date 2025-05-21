@@ -1,0 +1,16 @@
+{
+  "Eastern Province": 0,
+  "Lusaka Province": 1,
+  "Northern Province": 2,
+  "Southern Province": 3,
+  "UNKNOWN": 4,
+  "Western Province": 5,
+  "__reverse__": {
+    "eastern province": "Eastern Province",
+    "lusaka province": "Lusaka Province",
+    "northern province": "Northern Province",
+    "southern province": "Southern Province",
+    "unknown": "UNKNOWN",
+    "western province": "Western Province"
+  }
+}

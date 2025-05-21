@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>XtraSpace Auto-Reply Dashboard</title>
+  <link
+    href="https://cdn.jsdelivr.net/npm/tailwindcss@2/dist/tailwind.min.css"
+    rel="stylesheet"
+  />
+</head>
+<body class="bg-gray-100 p-6">
+  <h1 class="text-3xl font-bold mb-4">XtraSpace Live Scraper & Auto-Reply</h1>
+  <div id="posts" class="space-y-4">
+    <p class="text-gray-600">Loading latest posts…</p>
+  </div>
+
+  <!-- TensorFlow.js -->
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4/dist/tf.min.js"></script>
+  <script>
+    // 1️⃣ Load TF-JS model + artifacts
+    let model, wordIndex, intentLabels, provMap;
+    (async () => {
+      model        = await tf.loadLayersModel('web_model/web_model/model.json');
+      wordIndex    = await fetch('web_model/tokenizer_word_index.json').then(r=>r.json());
+      intentLabels = await fetch('web_model/intent_classes.json').then(r=>r.json());
+      provMap      = await fetch('web_model/province_index.json').then(r=>r.json());
+      await renderPosts();    // kick off after model+artifacts are ready
+    })();
+
+    // 2️⃣ Preprocess text → tensors (maxLen = 30)
+    function preprocess(text) {
+      const maxLen = 30;
+      const toks = text.toLowerCase()
+        .replace(/[^\w\s]/g,' ')
+        .split(/\s+/)
+        .map(w => wordIndex[w] || wordIndex['<OOV>'])
+        .slice(0, maxLen);
+      while (toks.length < maxLen) toks.push(0);
+
+      let province = 'UNKNOWN';
+      const lower = text.toLowerCase();
+      for (const [loc, prov] of Object.entries(provMap.__reverse__||{})) {
+        if (lower.includes(loc)) { province = prov; break; }
+      }
+      const provId = provMap[province] || provMap['UNKNOWN'];
+
+      return {
+        txt: tf.tensor2d([toks], [1, maxLen]),
+        prv: tf.tensor1d([provId], 'int32')
+      };
+    }
+
+    // 3️⃣ Fetch & display posts from scraped_posts.json
+    async function renderPosts() {
+      const postsDiv = document.getElementById('posts');
+      const all = await fetch('/scraped_posts.json').then(r=>r.json());
+
+      postsDiv.innerHTML = '';
+      all.slice(0, 20).forEach(item => {
+        const msg = item.message || '';
+        const div = document.createElement('div');
+        div.className = 'bg-white p-4 rounded shadow';
+
+        // Original message
+        const p = document.createElement('p');
+        p.className = 'font-medium';
+        p.textContent = msg;
+        div.appendChild(p);
+
+        // Run inference
+        const { txt, prv } = preprocess(msg);
+        const scores = model.predict({ text_input: txt, prov_input: prv }).arraySync()[0];
+        const idx    = scores.indexOf(Math.max(...scores));
+        const intent = intentLabels[idx].replace(/_/g,' ');
+        const conf   = (scores[idx]*100).toFixed(1);
+
+        const info = document.createElement('p');
+        info.className = 'mt-2 text-sm text-gray-700';
+        info.textContent = `Intent: ${intent}, Confidence: ${conf}%`;
+        div.appendChild(info);
+
+        // Play Store link
+        const a = document.createElement('a');
+        a.href   = 'https://play.google.com/store/apps/details?id=com.xtraspace.app';
+        a.target = '_blank';
+        a.className = 'mt-2 inline-block text-blue-600';
+        a.textContent = 'Download XtraSpace App';
+        div.appendChild(a);
+
+        postsDiv.appendChild(div);
+      });
+    }
+  </script>
+</body>
+</html>
