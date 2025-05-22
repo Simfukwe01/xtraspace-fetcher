@@ -11,7 +11,7 @@ log("🚀 Starting scraper & reply bot...")
 
 # ─── Environment ───────────────────────────────────────────────────────────────
 # 🔥 TEMP: Hardcoded for testing; remove for production!
-TOKEN = "EAAJwVlkVeLUBO7u6EJnJhwSxFjkTymXJ3UDRZCzHnFJAGhAc9z2luZCoAi19dwzLdmOenqhGZBKeQb1qy95tyKoyEboY39NovIRdAV6IH0ZC5da2gIZAXyZBYUp38EOZB6nksHHZBagvU9F0JkEGxBoU6n8OZAyORk3DCD0M8oDnWASa9w4MHPF13ihp8uW1CiVZBGZAzP1x4Lqxhw9FAZBPUZChk"
+TOKEN = os.environ.get("TOKEN")
 PAGE_ID = "579954655210740"
 
 if not TOKEN or not PAGE_ID:
