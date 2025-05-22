@@ -21,7 +21,7 @@
     // 1️⃣ Load TF-JS model + artifacts
     let model, wordIndex, intentLabels, provMap;
     (async () => {
-      model        = await tf.loadLayersModel('web_model/web_model/model.json');
+      model        = await tf.loadLayersModel('web_model/web_model/intent_model_with_loc.h5');
       wordIndex    = await fetch('web_model/tokenizer_word_index.json').then(r=>r.json());
       intentLabels = await fetch('web_model/intent_classes.json').then(r=>r.json());
       provMap      = await fetch('web_model/province_index.json').then(r=>r.json());
