@@ -9,7 +9,7 @@ jobs:
   scrape:
     runs-on: ubuntu-latest
     env:
-      FB_TOKEN: ${{ secrets.TOKEN }}
+      FB_TOKEN: ${{ secrets.FB_TOKEN }}
       PAGE_ID: 579954655210740
 
     steps:
