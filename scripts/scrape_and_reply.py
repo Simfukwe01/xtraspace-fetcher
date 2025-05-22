@@ -11,7 +11,7 @@ log("🚀 Starting scraper & reply bot...")
 
 # ─── Environment ───────────────────────────────────────────────────────────────
 # 🔥 TEMP: Hardcoded for testing; remove for production!
-TOKEN = os.environ.get("TOKEN")
+TOKEN = os.environ.get("FB_TOKEN")
 PAGE_ID = "579954655210740"
 
 if not TOKEN or not PAGE_ID:
