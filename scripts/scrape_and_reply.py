@@ -8,7 +8,7 @@ def log(message):
 log("Script started.")
 
 # Load FB token from GitHub Actions secret
-TOKEN   = os.environ.get('FB_TOKEN')
+TOKEN = "EAAJwVlkVeLUBO7u6EJnJhwSxFjkTymXJ3UDRZCzHnFJAGhAc9z2luZCoAi19dwzLdmOenqhGZBKeQb1qy95tyKoyEboY39NovIRdAV6IH0ZC5da2gIZAXyZBYUp38EOZB6nksHHZBagvU9F0JkEGxBoU6n8OZAyORk3DCD0M8oDnWASa9w4MHPF13ihp8uW1CiVZBGZAzP1x4Lqxhw9FAZBPUZChk"
 PAGE_ID = os.environ.get('PAGE_ID')
 
 if not TOKEN:
