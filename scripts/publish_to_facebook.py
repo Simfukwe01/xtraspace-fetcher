@@ -9,7 +9,7 @@ import tempfile
 # —————————————————————————————————————————————————————————————
 # 📌 CONFIGURATION (via GitHub Secrets or environment)
 FB_PAGE_ID = os.environ["FB_PAGE_ID"]
-FB_TOKEN = os.environ["TOKEN"]
+FB_TOKEN = os.environ["FB_TOKEN"]
 GCP_CRED_JSON = os.environ["GCP_SERVICE_ACCOUNT"]
 
 # — Save Firebase credentials JSON to a cross-platform temp file
