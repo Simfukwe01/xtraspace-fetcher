@@ -7,7 +7,7 @@ from datetime import datetime
 # —————————————————————————————————————————————————————————————
 # 📌 CONFIGURATION (via GitHub Secrets)
 FB_PAGE_ID    = os.environ["FB_PAGE_ID"]
-FB_TOKEN      = os.environ["FB_TOKEN"]
+TOKEN = os.environ.get("FB_TOKEN")
 GCP_CRED_JSON = os.environ["GCP_SERVICE_ACCOUNT"]  # the contents of your service-account.json
 
 # — initialize Firestore
