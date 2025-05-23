@@ -1,17 +1,24 @@
 import os
+import json
 import requests
 import firebase_admin
 from firebase_admin import credentials, firestore
 from datetime import datetime
+import tempfile
 
 # —————————————————————————————————————————————————————————————
-# 📌 CONFIGURATION (via GitHub Secrets)
-FB_PAGE_ID    = os.environ["FB_PAGE_ID"]
-TOKEN = os.environ.get("FB_TOKEN")
-GCP_CRED_JSON = os.environ["GCP_SERVICE_ACCOUNT"]  # the contents of your service-account.json
+# 📌 CONFIGURATION (via GitHub Secrets or environment)
+FB_PAGE_ID = os.environ["FB_PAGE_ID"]
+FB_TOKEN = os.environ["TOKEN"]
+GCP_CRED_JSON = os.environ["GCP_SERVICE_ACCOUNT"]
 
-# — initialize Firestore
-cred = credentials.Certificate(GCP_CRED_JSON)
+# — Save Firebase credentials JSON to a cross-platform temp file
+with tempfile.NamedTemporaryFile(delete=False, suffix=".json", mode="w") as f:
+    f.write(GCP_CRED_JSON)
+    temp_path = f.name
+
+# — Initialize Firestore using the temp file
+cred = credentials.Certificate(temp_path)
 firebase_admin.initialize_app(cred)
 db = firestore.client()
 
@@ -24,8 +31,7 @@ def build_caption(doc):
         caption += f"🛏️ {data['number_of_bedrooms']} bedrooms\n"
     if data.get("price"):
         caption += f"💰 {data['price']} ({data.get('payment_conditions','')})\n"
-    # WhatsApp
-    phone = data.get("contact","").replace("+","").replace(" ","")
+    phone = data.get("contact", "").replace("+", "").replace(" ", "")
     if phone:
         caption += f"📱 WhatsApp: https://wa.me/{phone}\n"
     caption += "🔗 More on XtraSpace App: https://play.google.com/store/apps/details?id=com.xtraspace.app"
@@ -44,16 +50,12 @@ def post_to_fb(caption, image_url):
 
 def publish_collection(col_name):
     col = db.collection(col_name)
-    # Only docs where posted==False (or missing)
     q = col.where("posted", "==", False)
     for doc in q.stream():
         data = doc.to_dict()
-        # pick first image
         img = (
-            data.get("images",{})
-                .get("bedroom",[]) +
-            data.get("images",{})
-                .get("outside",[])
+            data.get("images", {}).get("bedroom", []) +
+            data.get("images", {}).get("outside", [])
         )
         if not img:
             print(f"[{col_name}] No image for {doc.id}, skipping")
@@ -63,14 +65,13 @@ def publish_collection(col_name):
         try:
             post_id = post_to_fb(caption, img[0])
             print(f"[{col_name}] Posted {doc.id} → FB {post_id}")
-            # pin it
+            # Try pinning the post
             pin_url = f"https://graph.facebook.com/v19.0/{post_id}"
             requests.post(pin_url, data={
                 "is_pinned": "true",
                 "access_token": FB_TOKEN
             })
             print(f"[{col_name}] Pinned {post_id}")
-            # mark as posted
             doc.reference.update({
                 "posted": True,
                 "fb_posted_at": datetime.utcnow()
@@ -78,6 +79,7 @@ def publish_collection(col_name):
         except Exception as e:
             print(f"[{col_name}] ERROR on {doc.id}: {e}")
 
+# —————————————————————————————————————————————————————————————
 if __name__ == "__main__":
-    for c in ("bnb","event_places","homes","houses"):
+    for c in ("bnb", "event_places", "homes", "houses"):
         publish_collection(c)
