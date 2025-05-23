@@ -25,7 +25,7 @@ jobs:
       - name: Publish to Facebook
         env:
           FB_PAGE_ID: ${{ secrets.FB_PAGE_ID }}
-          FB_PAGE_TOKEN: ${{ secrets.FB_TOKEN}}
+          FB_PAGE_TOKEN: ${{ secrets.TOKEN}}
           GCP_SERVICE_ACCOUNT: ${{ secrets.GCP_SERVICE_ACCOUNT_JSON }}
         run: |
           python scripts/publish_to_facebook.py
