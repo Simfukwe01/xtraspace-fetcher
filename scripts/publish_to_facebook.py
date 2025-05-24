@@ -6,21 +6,40 @@ from firebase_admin import credentials, firestore
 from datetime import datetime
 import tempfile
 
+print("✅ Starting Facebook Publisher Script")
+
 # —————————————————————————————————————————————————————————————
 # 📌 CONFIGURATION (via GitHub Secrets or environment)
-FB_PAGE_ID = os.environ["FB_PAGE_ID"]
-FB_TOKEN = os.environ["FB_TOKEN"]
-GCP_CRED_JSON = os.environ["GCP_SERVICE_ACCOUNT"]
+
+try:
+    FB_PAGE_ID = os.environ["FB_PAGE_ID"]
+    FB_TOKEN = os.environ["FB_TOKEN"]
+    GCP_CRED_JSON = os.environ["GCP_SERVICE_ACCOUNT"]
+    print("✅ Environment variables loaded successfully")
+except KeyError as e:
+    print(f"❌ Missing environment variable: {e}")
+    print("🔎 Available environment variables:", list(os.environ.keys()))
+    raise
 
 # — Save Firebase credentials JSON to a cross-platform temp file
-with tempfile.NamedTemporaryFile(delete=False, suffix=".json", mode="w") as f:
-    f.write(GCP_CRED_JSON)
-    temp_path = f.name
+try:
+    with tempfile.NamedTemporaryFile(delete=False, suffix=".json", mode="w") as f:
+        f.write(GCP_CRED_JSON)
+        temp_path = f.name
+    print(f"✅ Firebase credentials saved to temporary file: {temp_path}")
+except Exception as e:
+    print("❌ Error writing Firebase credentials to file:", e)
+    raise
 
 # — Initialize Firestore using the temp file
-cred = credentials.Certificate(temp_path)
-firebase_admin.initialize_app(cred)
-db = firestore.client()
+try:
+    cred = credentials.Certificate(temp_path)
+    firebase_admin.initialize_app(cred)
+    db = firestore.client()
+    print("✅ Firebase initialized and Firestore client created")
+except Exception as e:
+    print("❌ Firebase initialization failed:", e)
+    raise
 
 # —————————————————————————————————————————————————————————————
 def build_caption(doc):
@@ -44,11 +63,13 @@ def post_to_fb(caption, image_url):
         "caption": caption,
         "access_token": FB_TOKEN
     }
+    print(f"📤 Posting to Facebook: {image_url}")
     r = requests.post(url, data=payload)
     r.raise_for_status()
     return r.json()["post_id"]
 
 def publish_collection(col_name):
+    print(f"📂 Processing collection: {col_name}")
     col = db.collection(col_name)
     q = col.where("posted", "==", False)
     for doc in q.stream():
@@ -58,28 +79,38 @@ def publish_collection(col_name):
             data.get("images", {}).get("outside", [])
         )
         if not img:
-            print(f"[{col_name}] No image for {doc.id}, skipping")
+            print(f"⚠️ [{col_name}] No image for {doc.id}, skipping")
             doc.reference.update({"posted": True})
             continue
         caption = build_caption(doc)
         try:
             post_id = post_to_fb(caption, img[0])
-            print(f"[{col_name}] Posted {doc.id} → FB {post_id}")
+            print(f"✅ [{col_name}] Posted {doc.id} → FB Post ID: {post_id}")
+
             # Try pinning the post
             pin_url = f"https://graph.facebook.com/v19.0/{post_id}"
-            requests.post(pin_url, data={
+            response = requests.post(pin_url, data={
                 "is_pinned": "true",
                 "access_token": FB_TOKEN
             })
-            print(f"[{col_name}] Pinned {post_id}")
+            if response.ok:
+                print(f"📌 [{col_name}] Pinned post {post_id}")
+            else:
+                print(f"⚠️ [{col_name}] Failed to pin post {post_id}: {response.text}")
+
+            # Update Firestore document
             doc.reference.update({
                 "posted": True,
                 "fb_posted_at": datetime.utcnow()
             })
+            print(f"📝 [{col_name}] Updated Firestore doc: {doc.id}")
+
         except Exception as e:
-            print(f"[{col_name}] ERROR on {doc.id}: {e}")
+            print(f"❌ [{col_name}] ERROR on {doc.id}: {e}")
 
 # —————————————————————————————————————————————————————————————
 if __name__ == "__main__":
+    print("🚀 Starting publishing process")
     for c in ("bnb", "event_places", "homes", "houses"):
         publish_collection(c)
+    print("🏁 All collections processed")
