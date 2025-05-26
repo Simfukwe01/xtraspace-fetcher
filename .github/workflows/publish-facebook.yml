@@ -2,30 +2,31 @@ name: Publish new properties to Facebook
 
 on:
   schedule:
-    - cron: '*/2 * * * *'
-  workflow_dispatch:
+    - cron: '*/2 * * * *'    # every 2 minutes
+  workflow_dispatch:        # manual trigger too
 
 jobs:
   publish:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout repository
+        uses: actions/checkout@v3
 
       - name: Set up Python
-        uses: actions/setup-python@v4 
+        uses: actions/setup-python@v4
         with:
           python-version: '3.10'
 
       - name: Install dependencies
         run: |
-          pip install --upgrade pip
+          python -m pip install --upgrade pip
           pip install requests firebase-admin
 
       - name: Publish to Facebook
         env:
-          FB_PAGE_ID: ${{ secrets.FB_PAGE_ID }}
-          FB_PAGE_TOKEN: ${{ secrets.TOKEN}}
+          FB_PAGE_ID:          ${{ secrets.FB_PAGE_ID }}
+          FB_PAGE_TOKEN:       ${{ secrets.FB_PAGE_TOKEN }}
           GCP_SERVICE_ACCOUNT: ${{ secrets.GCP_SERVICE_ACCOUNT_JSON }}
         run: |
           python scripts/publish_to_facebook.py
