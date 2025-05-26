@@ -18,7 +18,7 @@ WORD_IDX   = 'web_model/tokenizer_word_index.json'
 INTENTS    = 'web_model/intent_classes.json'
 PROV_MAP   = 'web_model/province_index.json'
 
-for var,name in [(PAGE_ID,"FB_PAGE_ID"),(PAGE_TOKEN,"FB_PAGE_TOKEN")]:
+for var,name in [(PAGE_ID,"FB_PAGE_ID"),(PAGE_TOKEN,"FB_PAGE_TOKEN")or os.environ.get("FB_TOKEN")]:
     if not var:
         log(f"❌ Missing env var {name}")
         exit(1)
