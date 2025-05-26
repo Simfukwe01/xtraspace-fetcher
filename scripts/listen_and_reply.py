@@ -12,13 +12,13 @@ log("🚀 Starting Comment Listener & Auto-Reply Bot")
 
 # ─── CONFIGURATION ─────────────────────────────────────────────────────────────
 PAGE_ID    = os.environ.get("FB_PAGE_ID")
-PAGE_TOKEN = os.environ.get("FB_PAGE_TOKEN")
+PAGE_TOKEN = os.environ.get("FB_TOKEN")
 MODEL_PATH = 'web_model/web_model/intent_model_with_loc.h5'
 WORD_IDX   = 'web_model/tokenizer_word_index.json'
 INTENTS    = 'web_model/intent_classes.json'
 PROV_MAP   = 'web_model/province_index.json'
 
-for var,name in [(PAGE_ID,"FB_PAGE_ID"),(PAGE_TOKEN,"FB_PAGE_TOKEN")or os.environ.get("FB_TOKEN")]:
+for var,name in [(PAGE_ID,"FB_PAGE_ID"),(PAGE_TOKEN,"FB_TOKEN")or os.environ.get("TOKEN")]:
     if not var:
         log(f"❌ Missing env var {name}")
         exit(1)
