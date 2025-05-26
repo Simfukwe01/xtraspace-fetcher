@@ -14,7 +14,7 @@ print("✅ Starting Facebook Publisher Script")
 # 📌 CONFIGURATION (via GitHub Secrets or environment)
 try:
     FB_PAGE_ID     = os.environ["FB_PAGE_ID"]
-    FB_TOKEN       = os.environ["FB_PAGE_TOKEN"]       # <-- must match your workflow
+    FB_TOKEN       = os.environ["FB_TOKEN"]
     GCP_CRED_JSON  = os.environ["GCP_SERVICE_ACCOUNT"]
     print("✅ Environment variables loaded successfully")
 except KeyError as e:
