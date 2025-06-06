@@ -24,6 +24,6 @@ jobs:
       - name: Run comment listener & auto-reply
         env:
           FB_PAGE_ID:    ${{secrets.FB_PAGE_ID}}
-          FB_PAGE_TOKEN: ${{secrets.FB_TOKEN}}
+          FB_TOKEN: ${{secrets.FB_TOKEN}}
         run: |
           python scripts/listen_and_reply.py
