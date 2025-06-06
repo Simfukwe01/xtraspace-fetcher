@@ -26,6 +26,7 @@ log("✅ Env vars loaded")
 try:
     model = load_model(MODEL_PATH)
     log("✅ Model loaded")
+    log(f"Model input shape: {model.input_shape}")  # Debug input shape
 except Exception as e:
     log(f"❌ Model load failed: {e}")
     exit(1)
@@ -42,7 +43,7 @@ except Exception as e:
 # ─── TEXT PREPROCESSING ─────────────────────────────────────────────────────────
 def preprocess(text):
     log(f"🔧 Preprocessing text: {text}")
-    maxLen = 30
+    maxLen = 11  # Changed from 30 to 11 to match model input shape
     toks = text.lower().replace('[^\\w\\s]', ' ').split()
     toks = [word_index.get(w, word_index.get('<OOV>', 1)) for w in toks][:maxLen]
     toks += [0] * (maxLen - len(toks))
